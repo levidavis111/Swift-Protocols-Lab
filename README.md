@@ -38,6 +38,46 @@ three instances of a `Human`, then create an array called people of type [`Human
 
 Create a new array called sortedPeople of type [`Human`] that is the people array sorted by age.
 
+```swift
+
+class Human: CustomStringConvertible, Equatable, Comparable {
+
+var description: String {
+get {
+return name
+}
+}
+var name: String
+var age: Int
+
+
+
+static func < (lhs: Human, rhs: Human) -> Bool {
+return lhs.age > rhs.age
+}
+
+
+static func == (lhs: Human, rhs: Human) -> Bool {
+return lhs.age == rhs.age && lhs.name == rhs.name
+}
+
+init(name: String, age: Int) {
+self.name = name
+self.age = age
+}
+}
+
+var levi = Human(name: "Levi", age: 38)
+var david = Human(name: "David", age: 30)
+var olimpia = Human(name: "Olimpia", age: 28)
+var humanArray = [levi,david,olimpia]
+var sortedPeople = humanArray.sorted()
+print(levi,david)
+print(levi == david)
+print(sortedPeople)
+```
+
+
 </br> </br>
 
 
@@ -55,6 +95,41 @@ c. Define a Bike struct that implements the `Vehicle` protocol. `numberOfWheels`
 and drive() should print "Begin pedaling!". Create an instance of Bike, print its number of wheels,
 then call drive().
 
+```swift
+protocol Vehicle {
+var numberOfWheels: Int { get }
+
+func drive()
+}
+
+struct Car: Vehicle {
+var numberOfWheels = 4
+
+
+func drive() {
+print("vroom, vroom!")
+}
+
+}
+
+struct Bike: Vehicle {
+var numberOfWheels = 2
+
+func drive() {
+print("Begin pedaling!")
+}
+}
+
+var beepBeep = Car()
+print(beepBeep.numberOfWheels)
+beepBeep.drive()
+
+var schwin = Bike()
+print(schwin.numberOfWheels)
+schwin.drive()
+```
+
+
 </br> </br>
 
 
@@ -71,6 +146,28 @@ protocol Bird {
 
 protocol Flyable {
  var airspeedVelocity: Double { get }
+}
+```
+```swift
+protocol Bird {
+var name: String { get }
+var canFly: Bool { get }
+}
+
+protocol Flyable {
+var airspeedVelocity: Double { get }
+}
+
+struct Penguin: Bird, Flyable {
+var name = "Penguin"
+var canFly = false
+var airspeedVelocity = 0.0
+}
+
+struct Eagle: Bird, Flyable {
+var name = "Eagle"
+var canFly = true
+var airspeedVelocity = 10.0
 }
 ```
 
@@ -97,6 +194,35 @@ bruceBanner.transform() . // hulk
 
 bruceBanner.transform()  // notHulk
 ```
+```swift
+protocol Transformation {
+
+
+mutating func transform() -> SuperHero
+}
+
+enum SuperHero: Transformation {
+case hulk
+case notHulk
+
+mutating func transform() -> SuperHero {
+switch self {
+case .hulk:
+self = .notHulk
+case .notHulk:
+self = .hulk
+}
+return self
+}
+}
+
+// Example Output:
+var bruceBanner = SuperHero.notHulk
+//
+bruceBanner.transform()  // hulk
+
+bruceBanner.transform()  // notHulk
+```
 
 </br> </br>
 
@@ -116,6 +242,32 @@ e. `message` should return a unique message for each animal when talk is called.
 f. Put an instance of each of your classes in an array.
 
 g. Iterate over the array and have them print their `message` property
+
+```swift
+protocol Communication {
+var message: String { get }
+}
+
+class Cow: Communication {
+var message = "Moo"
+}
+
+class Dog: Communication {
+var message = "Woof"
+}
+
+class Cat: Communication {
+var message = "Mew"
+}
+
+var bessie = Cow()
+var puppy = Dog()
+var kitty = Cat()
+var animalArray = [bessie.message,puppy.message,kitty.message]
+for i in animalArray {
+print(i)
+}
+```
 
 
 ## Question 6
@@ -159,3 +311,53 @@ Now make HeartRateViewController adopt the protocol you've just created. Inside 
 Now add a property called delegate to HeartRateReceiver that is of type HeartRateReceiverDelegate?. In the didSet of currentHR where currentHR is successfully unwrapped, call heartRateUpdated(to bpm:) on the delegate property.
 
 Finally, return to the line of code just after you initialized an instance of HeartRateReceiver. Initialize an instance of HeartRateViewController. Then, set the delegate property of your instance of HeartRateReceiver to be the instance of HeartRateViewController that you just created. Wait for your code to compile and observe what is printed to the console. Every time that currentHR gets set, you should see both a printout of the most recent heart rate, and the print statement stating that the heart rate was shown to the user.
+
+```swift
+protocol HeartRateReceiverDelegate {
+func heartRateUpdated(to bpm: Int)
+}
+
+class HeartRateReceiver {
+func heartRateUpdated(to bpm: Int) {
+print("The user has been shown a heart rate of \(heartRate).")
+}
+
+var currentHR: Int? {
+didSet {
+if let currentHR = currentHR {
+print("The most recent heart rate reading is \(currentHR).")
+if let delegate = delegate {
+heartRate.heartRateUpdated(to: delegate as! Int)
+}
+} else {
+print("Looks like we can't pick up a heart rate.")
+}
+}
+}
+var delegate: HeartRateReceiverDelegate?
+func startHeartRateMonitoringExample() {
+for _ in 1...10 {
+let randomHR = 60 + Int.random(in: 0...15)
+currentHR = randomHR
+Thread.sleep(forTimeInterval: 2)
+}
+}
+}
+
+class HeartRateViewController: UIViewController, HeartRateReceiverDelegate {
+var heartRateLabel: UILabel = UILabel()
+
+func heartRateUpdated(to bpm: Int) {
+print("The user has been shown a heart rate of \(heartRate).")
+}
+
+
+
+
+}
+
+var heartRate = HeartRateReceiver()
+var heartRateViewController = HeartRateViewController()
+heartRate.delegate = heartRateViewController
+heartRate.startHeartRateMonitoringExample()
+```
